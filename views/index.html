@@ -1,70 +1,379 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>Personal Library</title>
-  <link rel="icon" type="image/png" href="https://cdn.freecodecamp.org/universal/favicons/favicon-16x16.png" />
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book Tracker | Dashboard</title>
+  <link rel="icon" type="image/png" href="https://cdn.freecodecamp.org/universal/favicons/favicon-16x16.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/public/style.css">
-  <style>
-    code {
-      background-color: whitesmoke;
-    }
-  </style>
 </head>
 <body>
-<header>
-  <h1>Personal Library</h1>
-</header>
-<br>
-<div id ='sampleposting'>
-  <h2 style="text-align: left">Test API responses</h2>
-  <form action="/api/books" method="post" class="border">
-    <h4>Test post to /api/books</h4>
-    <label for="title" >Book Title</label>
-    <input type="text" id="title" name="title" value=""><br>
-    <input type="submit" value="Submit">
-  </form>
-  <form action="" method="post" id="commentTest" class="border">
-    <h4>Test post to /api/books/{bookid}</h4>
-    <label for="idinputtest">BookId to comment on</label>
-    <input type="text" name="id" value="" id="idinputtest"><br>
-    <label for="comment">Comment</label>
-    <input type="text" id="comment" name="comment" value=""><br>
-    <input type="submit" value="Submit">
-  </form>
-</div>
-<hr style='margin: 50px'>
-<div id='sampleui'>
-  <h2 style="text-align: left">Sample Front-End</h2>
-  <form id="newBookForm" class="border">
-    <label for="bookTitleToAdd">New Book Title</label>
-    <input type="text" id="bookTitleToAdd" name="title" placeholder="Moby Dick" style="width: 295px">
-    <button type="submit" value="Submit" id="newBook">Submit New Book!</button>
-  </form>
-  <div id='display'></div>
-  <div id='bookDetail' class='border'>
-    <p id='detailTitle'>Select a book to see it's details and comments</p>
-    <ol id='detailComments'></ol>
-  </div>
-  <button id='deleteAllBooks'>Delete all books...</button>
-</div>
-<hr style='margin: 50px'>
+  <div id="appLayout" class="app-layout">
+    <!-- Mobile Navigation Overlay -->
+    <div id="mobileNavOverlay" class="mobile-nav-overlay hidden"></div>
 
-<script src="https://code.jquery.com/jquery-2.2.1.min.js"
-        integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
-        crossorigin="anonymous"></script>
-<script src="/public/client.js"></script>
-<script>
-  /*
-  *  For #sampleposting to update form action url to test inputs book id
-  */
-  $(function() {
-    $('#commentTest').submit(function(){
-      let  id = $('#idinputtest').val();
-      $(this).attr('action', "/api/books/" + id);
+    <!-- Left Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </div>
+        <span class="brand-title">Book Tracker</span>
+        <button id="closeSidebarBtn" class="close-sidebar-btn" type="button" aria-label="Close menu">✕</button>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Primary Navigation">
+        <button id="navLibrary" class="nav-link nav-btn active" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span>Library</span>
+        </button>
+        <button id="sidebarAddBook" class="nav-link nav-btn" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>Add Book</span>
+        </button>
+        <button id="navClearAll" class="nav-link nav-btn danger-nav-link" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            <line x1="10" y1="11" x2="10" y2="17"/>
+            <line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+          <span>Clear All Books</span>
+        </button>
+        <button id="navAbout" class="nav-link nav-btn" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <span>About</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="coffee-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+            <line x1="6" y1="1" x2="6" y2="4"/>
+            <line x1="10" y1="1" x2="10" y2="4"/>
+            <line x1="14" y1="1" x2="14" y2="4"/>
+          </svg>
+        </div>
+        <p class="coffee-text">A personal library that grows with you.</p>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Content -->
+    <div class="main-content">
+      <!-- Topbar Header -->
+      <header class="top-header">
+        <div class="top-header-left">
+          <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <div class="mobile-brand-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="brand-purple-icon">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span>Book Tracker</span>
+          </div>
+        </div>
+
+        <div class="search-container">
+          <input id="searchBooks" type="search" placeholder="Search books..." autocomplete="off" />
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+
+        <div class="top-actions">
+          <button id="themeToggle" class="theme-toggle-btn" type="button" title="Toggle Light/Dark Theme">
+            <svg id="themeMoonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <svg id="themeSunIcon" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard Workspace Body -->
+      <main class="dashboard-body">
+        <!-- Middle Column: Books Grid & List -->
+        <section id="booksPanel" class="books-section">
+          <div class="books-section-header">
+            <div class="section-title-group">
+              <h2 class="section-title">All Books</h2>
+              <span id="resultCount" class="badge-count">0</span>
+            </div>
+
+            <div class="sort-wrapper">
+              <select id="sortBooks" class="select-sort">
+                <option value="newest">Sort by: Newest</option>
+                <option value="oldest">Sort by: Oldest</option>
+                <option value="title">Sort by: Title A–Z</option>
+                <option value="comments">Sort by: Most comments</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Loading state skeleton -->
+          <div id="booksState" class="state-container loading-state-card hidden">
+            <div class="skeleton-grid">
+              <div class="skeleton-card">
+                <div class="skeleton-box badge-skel"></div>
+                <div class="skeleton-lines">
+                  <div class="skeleton-line title-skel"></div>
+                  <div class="skeleton-line sub-skel"></div>
+                </div>
+              </div>
+              <div class="skeleton-card">
+                <div class="skeleton-box badge-skel"></div>
+                <div class="skeleton-lines">
+                  <div class="skeleton-line title-skel"></div>
+                  <div class="skeleton-line sub-skel"></div>
+                </div>
+              </div>
+            </div>
+            <div class="spinner"></div>
+            <p class="loading-text">Loading books...</p>
+          </div>
+
+          <!-- Empty state -->
+          <div id="booksEmpty" class="state-container empty-state-card hidden">
+            <div class="empty-illustration">
+              <svg width="84" height="84" viewBox="0 0 100 100" fill="none">
+                <path d="M20 70C20 62 35 60 50 65C65 60 80 62 80 70V30C80 22 65 20 50 25C35 20 20 22 20 30V70Z" fill="#EEF2FF" stroke="#6366F1" stroke-width="4" stroke-linejoin="round"/>
+                <path d="M50 25V65" stroke="#4F46E5" stroke-width="4" stroke-linecap="round"/>
+                <path d="M35 15L38 18L35 21" stroke="#818CF8" stroke-width="3" stroke-linecap="round"/>
+                <path d="M65 12L68 15L65 18" stroke="#818CF8" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="empty-title">Your library is empty</h3>
+            <p class="empty-desc">Add your first book to get started!</p>
+            <button id="emptyAddBook" class="btn-primary-purple" type="button">+ Add Book</button>
+          </div>
+
+          <!-- Book Grid Container -->
+          <div id="bookGrid" class="book-grid"></div>
+
+          <!-- Pagination -->
+          <div id="pagination" class="pagination-container">
+            <button id="prevPage" class="page-btn" type="button" disabled>&lt;</button>
+            <div id="pageNumbers" class="page-numbers"></div>
+            <button id="nextPage" class="page-btn" type="button" disabled>&gt;</button>
+          </div>
+        </section>
+
+        <!-- Right Column: Selected Book Details & Comments Panel -->
+        <section id="detailPanel" class="detail-section">
+          <!-- Mobile Back Navigation Button -->
+          <button id="mobileBackBtn" class="mobile-back-btn hidden" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"/>
+              <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            <span>Back</span>
+          </button>
+
+          <!-- Empty detail state -->
+          <div id="detailEmpty" class="detail-empty-card">
+            <div class="empty-emoji">📖</div>
+            <h3>No book selected</h3>
+            <p>Select a book card to view details and comments.</p>
+          </div>
+
+          <!-- Detail View Card -->
+          <div id="detailView" class="detail-card hidden">
+            <div class="detail-card-header">
+              <h3 id="detailTitle" class="detail-book-title">Book Title</h3>
+              <button id="closeDetailView" class="icon-close-btn" type="button" aria-label="Close detail">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="detail-action-bar">
+              <div class="comment-count-group">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="comment-icon-purple">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span id="commentCountPill" class="comment-count-text">0 comments</span>
+              </div>
+              <button id="deleteBook" class="btn-delete-link" type="button">
+                <span>Delete Book</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <line x1="10" y1="11" x2="10" y2="17"/>
+                  <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Comments Scrollable List -->
+            <div id="detailComments" class="comments-scroll-list"></div>
+
+            <!-- Add Comment Form -->
+            <form id="newCommentForm" class="comment-input-form">
+              <input id="commentToAdd" name="comment" type="text" placeholder="Add a comment..." autocomplete="off" />
+              <button class="btn-primary-purple btn-add-comment" type="submit">Add Comment</button>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <!-- Developer Tools & FCC Testing Section -->
+      <section id="developerTools" class="developer-tools-section">
+        <details class="dev-details">
+          <summary class="dev-summary">
+            <span>⚙️ Developer Tools & FCC Testing Forms</span>
+          </summary>
+          <div class="dev-content">
+            <div class="dev-grid">
+              <div class="dev-card">
+                <h4>Quick Add Book Form</h4>
+                <form id="newBookForm" class="dev-form">
+                  <input type="text" id="bookTitleToAdd" name="title" placeholder="Book Title (e.g. Atomic Habits)">
+                  <button id="newBook" class="btn-primary-purple" type="submit">Submit</button>
+                </form>
+              </div>
+
+              <div class="dev-card danger-dev-card">
+                <h4>Danger Zone</h4>
+                <p>Deletes every book in the collection permanently.</p>
+                <button id="deleteAllBooksDev" class="btn-danger-red" type="button">Delete All Books</button>
+              </div>
+
+              <div class="dev-card span-2">
+                <h4>FCC Test Form /api/books</h4>
+                <div class="dev-forms-inline">
+                  <form action="/api/books" method="post" class="legacy-form">
+                    <h5>POST /api/books</h5>
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" value="">
+                    <input type="submit" value="Submit">
+                  </form>
+                  <form action="" method="post" id="commentTest" class="legacy-form">
+                    <h5>POST /api/books/{id}</h5>
+                    <label for="idinputtest">Book ID:</label>
+                    <input type="text" name="id" value="" id="idinputtest">
+                    <label for="comment">Comment:</label>
+                    <input type="text" id="comment" name="comment" value="">
+                    <input type="submit" value="Submit">
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="toast-notification hidden" role="status" aria-live="polite">
+    <div id="toastIcon" class="toast-icon"></div>
+    <div class="toast-content">
+      <div id="toastTitle" class="toast-title">Notification</div>
+      <div id="toastMessage" class="toast-message">Action processed successfully.</div>
+    </div>
+    <button id="closeToast" class="toast-close-btn" type="button">✕</button>
+  </div>
+
+  <!-- Overlay for Modals -->
+  <div id="overlay" class="modal-overlay hidden" aria-hidden="true"></div>
+
+  <!-- Modal 1: Add New Book -->
+  <section id="bookModal" class="modal-card hidden" aria-modal="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-card-header">
+      <h3 id="modalTitle">Add New Book</h3>
+      <button class="closeModalBtn icon-close-btn" type="button" aria-label="Close modal">✕</button>
+    </div>
+    <form id="modalNewBookForm" class="modal-form">
+      <label for="modalBookTitle">Title</label>
+      <input type="text" id="modalBookTitle" name="title" placeholder="Enter book title">
+      <div class="modal-actions">
+        <button type="button" class="closeModalBtn btn-secondary-outline">Cancel</button>
+        <button id="modalNewBook" class="btn-primary-purple" type="submit">Add Book</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Modal 2: Confirm Delete All Books -->
+  <section id="deleteAllModal" class="modal-card modal-card-danger hidden" aria-modal="true" role="dialog">
+    <div class="danger-modal-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <h3 class="danger-modal-title">Delete all books?</h3>
+    <p class="danger-modal-desc">This action cannot be undone. All books and comments will be permanently deleted.</p>
+    <div class="modal-actions">
+      <button type="button" class="closeModalBtn btn-secondary-outline">Cancel</button>
+      <button id="confirmDeleteAllBtn" class="btn-danger-red" type="button">Delete All</button>
+    </div>
+  </section>
+
+  <!-- Modal 3: About Modal -->
+  <section id="aboutModal" class="modal-card hidden" aria-modal="true" role="dialog">
+    <div class="modal-card-header">
+      <h3>About</h3>
+      <button class="closeModalBtn icon-close-btn" type="button" aria-label="Close modal">✕</button>
+    </div>
+    <div class="about-modal-body">
+      <div class="about-brand-badge">📚 Book Tracker</div>
+      <p class="about-text-content">
+        freeCodeCamp Library project improved by Fahmi Wahyu Wiradika with ChatGPT and Google Antigravity IDE
+      </p>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-2.2.1.min.js"
+          integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+          crossorigin="anonymous"></script>
+  <script src="/public/client.js"></script>
+  <script>
+    $(function() {
+      $('#commentTest').submit(function() {
+        const id = $('#idinputtest').val();
+        $(this).attr('action', "/api/books/" + id);
+      });
     });
-  });
-</script>
+  </script>
 </body>
 </html>

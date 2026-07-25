@@ -12,8 +12,19 @@ const runner            = require('./test-runner');
 
 const app = express();
 
+const mongoose = require("mongoose");
 const connectDB = require("./DB-setup/db-connection.js");
 
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState === 0 && process.env.MONGO_URI_LIBRARY) {
+    try {
+      await connectDB(process.env.MONGO_URI_LIBRARY);
+    } catch (err) {
+      console.error('DB Connection Error:', err);
+    }
+  }
+  next();
+});
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
