@@ -8,7 +8,7 @@ require('./DB-setup/db-connection.js');
 
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
-const runner            = require('./test-runner');
+const runner            = process.env.NODE_ENV === 'test' ? require('./test-runner') : null;
 
 const app = express();
 
@@ -60,7 +60,7 @@ const start = async () => {
     await connectDB(process.env.MONGO_URI_LIBRARY);
     app.listen(port, () => {
       console.log("Your app is listening on port " + port);
-      if (process.env.NODE_ENV === "test") {
+      if (process.env.NODE_ENV === "test" && runner) {
         console.log("Running Tests...");
         setTimeout(function () {
           try {

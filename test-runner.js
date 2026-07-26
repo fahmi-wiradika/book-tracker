@@ -33,22 +33,26 @@ const Mocha = require('mocha'),
     path = require('path');
 
 const mocha = new Mocha();
-const testDir = './tests'
+const testDir = path.join(__dirname, 'tests');
 
-
-// Add each .js file to the mocha instance
-fs.readdirSync(testDir).filter(function(file){
-    // Only keep the .js files
-    return file.substr(-3) === '.js';
-
-}).forEach(function(file){
-    mocha.addFile(
-        path.join(testDir, file)
-    );
-});
-
-let emitter = new EventEmitter();  
+let emitter = new EventEmitter();
 emitter.run = function() {
+
+  // Add each .js file to the mocha instance (done lazily, only when run() is
+  // actually called, so importing this module never touches the filesystem)
+  if (!fs.existsSync(testDir)) {
+    console.log('No tests directory found at ' + testDir + ', skipping test run.');
+    return;
+  }
+  fs.readdirSync(testDir).filter(function(file){
+      // Only keep the .js files
+      return file.substr(-3) === '.js';
+
+  }).forEach(function(file){
+      mocha.addFile(
+          path.join(testDir, file)
+      );
+  });
 
   let tests = [];
   let context = "";
