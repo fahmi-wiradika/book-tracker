@@ -3,6 +3,7 @@
 const express     = require('express');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
+const path        = require('path');
 require('dotenv').config();
 require('./DB-setup/db-connection.js');
 
@@ -26,7 +27,7 @@ app.use(async (req, res, next) => {
   next();
 });
 
-app.use('/public', express.static(process.cwd() + '/public'));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use(cors({origin: '*'})); //USED FOR FCC TESTING PURPOSES ONLY!
 
@@ -36,7 +37,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //Index page (static HTML)
 app.route('/')
   .get(function (req, res) {
-    res.sendFile(process.cwd() + '/views/index.html');
+    res.sendFile(path.join(__dirname, 'views', 'index.html'));
   });
 
 //For FCC testing purposes
